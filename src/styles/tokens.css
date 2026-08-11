@@ -1,0 +1,37 @@
+/* ===========================================================
+   デザイントークン
+   出典：docs/prototype.html（見た目と動きの正）／指示書 2.1・3.x
+   色は3つだけ。イエローは点で使う。面で塗らない。文字色にしない。
+   =========================================================== */
+:root {
+  --ink: #0f0f0f; /* 文字・線 */
+  --ink-2: #4a4a52; /* 補助テキスト */
+  --ink-3: #7b7b84; /* ラベル・日付 */
+  --line: #e2e2e6; /* 罫線・枠 */
+  --paper: #ffffff; /* 背景 */
+  --paper-2: #f4f4f2; /* 帯の背景 */
+  --accent: #ffd400; /* ロゴ中央の8と同じ。点で使う */
+  --accent-soft: #fff7cc; /* タグ・番号の背景 */
+
+  /* 見出しの光（指示書 3.2） */
+  --shine-duration: 2000ms;
+  --shine-ease: cubic-bezier(0.33, 0, 0.2, 1);
+
+  /* オープニング（指示書 3.1／合計 約1.5秒） */
+  --op-wipe: 820ms;
+  --op-wipe-at: 120ms;
+  --op-fill: 420ms;
+  --op-spark-at: 880ms;
+  --op-lift: 420ms;
+  --op-lift-at: 1420ms;
+  --op-ease: cubic-bezier(0.33, 0, 0.2, 1);
+
+  /* スクロール演出（指示書 3.3） */
+  --reveal-distance: 20px;
+  --reveal-duration: 600ms;
+  --reveal-stagger: 90ms;
+  --reveal-ease: cubic-bezier(0.16, 1, 0.3, 1);
+
+  --wrap: 1120px;
+  --gutter: clamp(20px, 5vw, 64px);
+}

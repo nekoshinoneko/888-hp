@@ -1,0 +1,112 @@
+/* ===========================================================
+   ヘッダー・フッター
+   =========================================================== */
+
+/* ---------- ヘッダー ---------- */
+.site-head {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: saturate(150%) blur(8px);
+  border-bottom: 1px solid var(--line);
+}
+
+.site-head__in {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  height: 64px;
+  min-width: 0;
+}
+
+/* ロゴに社名が含まれているので、横に「株式会社888」と書かない（指示書） */
+.brand {
+  display: block;
+  text-decoration: none;
+  flex: 0 0 auto;
+  line-height: 0;
+}
+
+/* 624:260 の縦横比を変えない。高さだけで指定する */
+.brand__logo {
+  height: 34px;
+  width: calc(34px * 624 / 260);
+  display: block;
+}
+
+@media (max-width: 400px) {
+  .brand__logo {
+    height: 28px;
+    width: calc(28px * 624 / 260);
+  }
+}
+
+.site-nav {
+  display: none;
+  gap: 28px;
+  font-size: 14px;
+}
+
+.site-nav a {
+  text-decoration: none;
+  color: var(--ink-2);
+}
+
+.site-nav a:hover {
+  color: var(--ink);
+}
+
+/* ---------- フッター ---------- */
+.site-foot {
+  border-top: 1px solid var(--line);
+  padding: 56px 0 40px;
+  font-size: 14px;
+}
+
+.site-foot__grid {
+  display: grid;
+  gap: 32px;
+}
+
+.site-foot dl {
+  margin: 0;
+  display: grid;
+  grid-template-columns: 7em 1fr;
+  gap: 8px 16px;
+}
+
+.site-foot dt {
+  color: var(--ink-3);
+}
+
+.site-foot dd {
+  margin: 0;
+}
+
+/* 社名の由来。イエローは面ではなくカードの淡い下地（--accent-soft）まで */
+.origin {
+  background: var(--accent-soft);
+  border-radius: 14px;
+  padding: 22px;
+  line-height: 1.9;
+}
+
+.copyright {
+  margin-top: 40px;
+  color: var(--ink-3);
+  font-size: 13px;
+}
+
+/* ---------- 760px（ブレークポイントは一本） ---------- */
+@media (min-width: 760px) {
+  .site-nav {
+    display: flex;
+  }
+
+  .site-foot__grid {
+    grid-template-columns: 1.2fr 0.8fr;
+    gap: 56px;
+  }
+}

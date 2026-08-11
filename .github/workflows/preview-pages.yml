@@ -1,0 +1,59 @@
+# レビュー用の GitHub Pages 公開。
+# 本番（Firebase App Hosting）とは別物で、静的書き出しでしか動かない。
+# 実装順序5（問い合わせフォーム）でサーバー実行が必要になった時点でこのワークフローは外す。
+name: preview-pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# 公開中に別のデプロイが割り込まないようにする
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Build (static export)
+        env:
+          STATIC_EXPORT: "1"
+          # https://<user>.github.io/888-hp/ に置くのでサブパスを渡す
+          NEXT_PUBLIC_BASE_PATH: /888-hp
+          NEXT_PUBLIC_SITE_URL: https://nekoshinoneko.github.io/888-hp
+          # レビュー用なので検索結果に出さない
+          NEXT_PUBLIC_NOINDEX: "1"
+        run: npm run build
+
+      # _next/ で始まるディレクトリを Jekyll に消されないようにする
+      - run: touch out/.nojekyll
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: out
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

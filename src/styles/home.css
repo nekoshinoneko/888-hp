@@ -1,0 +1,439 @@
+/* ===========================================================
+   トップページ各ブロック（指示書 1.3 の順序を変えない）
+   1 ファーストビュー / 2 事業の言い切り / 3 技術力の根拠 /
+   4 取り組んでいる領域 / 5 ブログ / 6 イベント事業 / 7 お問い合わせ
+   =========================================================== */
+
+/* ---------- 1. ファーストビュー ---------- */
+.hero {
+  padding: clamp(72px, 13vw, 150px) 0 clamp(56px, 9vw, 104px);
+}
+
+.hero h1 {
+  font-size: clamp(30px, 6.4vw, 60px);
+  letter-spacing: 0.01em;
+  margin-bottom: 28px;
+}
+
+.hero__slogan {
+  margin-top: 36px;
+  padding-top: 24px;
+  border-top: 1px solid var(--line);
+  font-size: clamp(14px, 1.6vw, 16px);
+  color: var(--ink-2);
+}
+
+.hero__slogan b {
+  color: var(--ink);
+  font-weight: 700;
+}
+
+/* ---------- 2. 事業の言い切り ---------- */
+.claim {
+  background: var(--paper-2);
+  padding: clamp(52px, 8vw, 88px) 0;
+}
+
+.claim h2 {
+  font-size: clamp(21px, 3.2vw, 32px);
+  margin-bottom: 20px;
+}
+
+.claim p {
+  max-width: 62ch;
+}
+
+/* ---------- 3. 技術力の根拠（実績の代わりに信用を作る場所） ---------- */
+.proof {
+  display: grid;
+  gap: 0;
+  border-top: 1px solid var(--line);
+}
+
+.proof__row {
+  display: grid;
+  gap: 8px 32px;
+  grid-template-columns: 1fr;
+  padding: 28px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.proof__k {
+  font-size: 13px;
+  letter-spacing: 0.1em;
+  color: var(--ink-3);
+  font-weight: 700;
+}
+
+.proof__t {
+  font-size: clamp(17px, 2.2vw, 20px);
+  font-weight: 700;
+}
+
+.proof__d {
+  color: var(--ink-2);
+  font-size: 15px;
+}
+
+/* ---------- 4. 取り組んでいる領域（自社プロダクト3本） ---------- */
+.fields {
+  display: grid;
+  gap: 14px;
+}
+
+.field {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 14px 18px;
+  align-items: start;
+  padding: 22px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+}
+
+/* 番号バッジ。イエローは背景まで。文字色にはしない */
+.field__n {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--ink);
+  background: var(--accent-soft);
+  border-radius: 999px;
+  padding: 4px 12px;
+}
+
+.field__t {
+  font-weight: 700;
+  font-size: 17px;
+}
+
+.field__d {
+  grid-column: 1 / -1;
+  color: var(--ink-2);
+  font-size: 15px;
+}
+
+/* ---------- 5. ブログ ---------- */
+.media {
+  background: var(--paper-2);
+  padding: clamp(60px, 9vw, 112px) 0;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 24px 0 4px;
+}
+
+.chip {
+  appearance: none;
+  border: 1px solid var(--line);
+  background: var(--paper);
+  color: var(--ink-2);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 8px 18px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.18s ease, color 0.18s ease, border-color 0.18s ease;
+}
+
+.chip:hover {
+  border-color: var(--ink-3);
+}
+
+.chip[aria-pressed="true"] {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: #fff;
+}
+
+/* 1件＝1行。細い罫線で区切り、行全体がリンク（指示書 4.1） */
+.posts {
+  list-style: none;
+  margin: 20px 0 0;
+  padding: 0;
+}
+
+.posts li {
+  border-bottom: 1px solid var(--line);
+}
+
+.posts li:first-child {
+  border-top: 1px solid var(--line);
+}
+
+.post {
+  display: grid;
+  grid-template-columns: 96px 1fr;
+  gap: 0 14px;
+  align-items: start;
+  padding: 18px 4px;
+  text-decoration: none;
+  transition: background 0.18s ease;
+}
+
+.post:hover {
+  background: var(--paper);
+}
+
+.post:hover .post__t {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.post__thumb {
+  width: 96px;
+  aspect-ratio: 16 / 10;
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--line);
+  border: 1px solid var(--line);
+}
+
+.post__thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.post__meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+  flex-wrap: wrap;
+}
+
+.post__date {
+  font-size: 12px;
+  color: var(--ink-3);
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+/* カテゴリごとにタグの色を変える（指示書 4.1） */
+.post__tag {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 999px;
+  white-space: nowrap;
+  background: var(--accent-soft);
+  color: var(--ink);
+}
+
+.post__tag--report {
+  background: #e6f0ea;
+}
+
+.post__tag--news {
+  background: #e8ecf5;
+}
+
+.post__t {
+  font-weight: 700;
+  font-size: clamp(15px, 2vw, 17px);
+  line-height: 1.6;
+  display: block;
+}
+
+/* モバイルでは抜粋を隠す。1件が縦に長くなり一覧の意味が消えるため（指示書 4.1） */
+.post__x {
+  color: var(--ink-2);
+  font-size: 14px;
+  margin-top: 4px;
+  display: none;
+}
+
+.post__by {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--ink-3);
+}
+
+.post__av {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--line);
+  flex: 0 0 auto;
+}
+
+.media__more {
+  margin-top: 30px;
+}
+
+/* ---------- 6. イベント事業（DemoStage） ---------- */
+.event {
+  background: var(--paper-2);
+  padding: clamp(52px, 8vw, 88px) 0;
+}
+
+.ds {
+  display: grid;
+  gap: 32px;
+  /* グリッドの子は既定で min-width:auto になり、中身の最小幅より縮まない。
+     ハッシュタグ（#demo_stage_summer）が途中で折れない語なので、
+     そのままだと320pxでカードが右にはみ出して切れる。 */
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.ds__name {
+  font-size: clamp(26px, 4vw, 38px);
+  font-weight: 800;
+  letter-spacing: 0.01em;
+  margin-bottom: 18px;
+}
+
+.ds__name span {
+  display: block;
+  font-size: 12px;
+  letter-spacing: 0.2em;
+  color: var(--ink-3);
+  font-weight: 700;
+  margin-top: 6px;
+}
+
+.ds__lead .lede + .lede {
+  margin-top: 14px;
+}
+
+.ds__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 24px;
+}
+
+.ds__facts {
+  margin: 0;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 8px 20px;
+}
+
+.ds__facts > div {
+  display: grid;
+  grid-template-columns: 7em minmax(0, 1fr);
+  gap: 10px 14px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.ds__facts > div:last-child {
+  border-bottom: 0;
+}
+
+.ds__facts dt {
+  color: var(--ink-3);
+  font-size: 13px;
+}
+
+.ds__facts dd {
+  margin: 0;
+  font-size: 14px;
+  /* ハッシュタグやURLのような折れない語を、枠内で折り返させる */
+  overflow-wrap: anywhere;
+}
+
+.ds__prog {
+  list-style: none;
+  margin: 36px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 12px;
+}
+
+.ds__prog li {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 14px;
+  align-items: start;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 18px 20px;
+}
+
+.ds__k {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ink);
+  background: var(--accent-soft);
+  border-radius: 999px;
+  padding: 4px 12px;
+}
+
+.ds__prog b {
+  display: block;
+  font-size: 15px;
+  margin-bottom: 4px;
+}
+
+.ds__prog span:last-child {
+  font-size: 14px;
+  color: var(--ink-2);
+}
+
+/* ---------- 7. お問い合わせ ---------- */
+.contact {
+  padding: clamp(64px, 10vw, 120px) 0;
+}
+
+.contact h2 {
+  font-size: clamp(22px, 3.6vw, 36px);
+  margin-bottom: 18px;
+}
+
+.contact__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 32px;
+}
+
+/* ---------- 760px（ブレークポイントは一本） ---------- */
+@media (min-width: 760px) {
+  .proof__row {
+    grid-template-columns: 12em 1fr;
+  }
+
+  .proof__d {
+    grid-column: 2;
+  }
+
+  .fields {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .post {
+    grid-template-columns: 168px 1fr;
+    gap: 0 22px;
+    padding: 22px 6px;
+  }
+
+  .post__thumb {
+    width: 168px;
+  }
+
+  .post__x {
+    display: block;
+  }
+
+  .ds {
+    grid-template-columns: 1.15fr 0.85fr;
+    gap: 56px;
+    align-items: start;
+  }
+
+  .ds__prog {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}

@@ -1,0 +1,170 @@
+/* ===========================================================
+   モーション（指示書 3）
+   - オープニング：消える処理はCSSアニメーションのみ。JSで消さない
+   - 見出しの光：background-clip:text の切り抜き
+   - スクロール演出：20px下からのフェードイン
+   ファイル末尾の prefers-reduced-motion ブロックが、この3つすべてを打ち消す。
+   =========================================================== */
+
+/* ---------- 1. オープニング（トップページのみ） ----------
+   ロゴを分解した状態から組み上げる。合計 約1.5秒。
+   幕は animation ... forwards で上がる。JSが落ちても必ず上がる。 */
+.opening {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: var(--paper-2);
+  animation: opening-lift var(--op-lift) var(--op-ease) var(--op-lift-at)
+    forwards;
+}
+
+/* 1) ロゴ全体を左から右へ描き出す（120ms から 820ms） */
+.opening__logo {
+  width: min(280px, 62vw);
+  height: auto;
+  clip-path: inset(0 100% 0 0);
+  animation: opening-wipe var(--op-wipe) var(--op-ease) var(--op-wipe-at)
+    forwards;
+}
+
+/* 2) 進捗バーが左から伸びる（0ms から 1340ms） */
+.opening__track {
+  width: min(280px, 62vw);
+  height: 1px;
+  background: var(--line);
+  margin-top: 28px;
+}
+
+.opening__bar {
+  width: 0;
+  height: 100%;
+  background: var(--ink);
+  animation: opening-bar 1340ms var(--op-ease) forwards;
+}
+
+/* 3) 中央の8だけがイエローに点灯（880ms から 420ms）
+      opacity で出す。別の色から変化させない（色の規定に反するため） */
+.opening__spark {
+  opacity: 0;
+  animation: opening-spark var(--op-fill) var(--op-ease) var(--op-spark-at)
+    forwards;
+}
+
+@keyframes opening-wipe {
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+@keyframes opening-bar {
+  to {
+    width: 100%;
+  }
+}
+
+@keyframes opening-spark {
+  to {
+    opacity: 1;
+  }
+}
+
+/* 4) 幕が上がる（1420ms から 420ms） */
+@keyframes opening-lift {
+  to {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+}
+
+/* 同一セッション内で2回目以降は出さない。
+   クラスは <head> のインラインスクリプトが <html> に付ける（描画前に決まる）。
+   JSの役割はこの判定だけで、幕を消す処理には関与しない。 */
+.is-opening-seen .opening {
+  display: none;
+}
+
+/* ---------- 2. 見出しの光 ----------
+   文字を透明にし、背景のグラデーションを background-clip:text で切り抜く。
+   background-position を 100% 0 → 0 0 へ動かす。 */
+.shine {
+  background-image: linear-gradient(
+    100deg,
+    var(--ink) 0,
+    var(--ink) 40%,
+    #b99b00 47%,
+    var(--accent) 50%,
+    #b99b00 53%,
+    transparent 60%,
+    transparent 100%
+  );
+  background-size: 300% 100%;
+  background-position: 100% 0;
+  background-repeat: no-repeat;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+/* is-shining はマークアップに直接書く。JSで付けない。
+   fill-mode:both なので、JSが動かなくても終了状態（＝読める状態）で止まる。 */
+.shine.is-shining {
+  animation: shine-sweep var(--shine-duration) var(--shine-ease) both;
+}
+
+.shine--d1 {
+  animation-delay: 220ms;
+}
+
+@keyframes shine-sweep {
+  from {
+    background-position: 100% 0;
+  }
+  to {
+    background-position: 0 0;
+  }
+}
+
+/* ---------- 3. スクロール演出 ----------
+   同じグループ内は --reveal-index で 90ms ずつずらす。
+   index はマークアップ側の inline style で渡す（JSに依存させない）。 */
+[data-reveal] {
+  opacity: 0;
+  transform: translateY(var(--reveal-distance));
+  transition: opacity var(--reveal-duration) var(--reveal-ease),
+    transform var(--reveal-duration) var(--reveal-ease);
+  transition-delay: calc(var(--reveal-index, 0) * var(--reveal-stagger));
+}
+
+[data-reveal].is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+/* ---------- 打ち消し ----------
+   animation を消すだけだと、.shine は文字が透明のまま消える。
+   background-image と -webkit-text-fill-color の復帰も必ず書く（指示書 3.2）。 */
+@media (prefers-reduced-motion: reduce) {
+  .opening {
+    display: none;
+  }
+
+  .shine,
+  .shine.is-shining {
+    animation: none;
+    background-image: none;
+    -webkit-text-fill-color: var(--ink);
+    color: var(--ink);
+  }
+
+  [data-reveal] {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
