@@ -62,6 +62,30 @@ export type Author = {
   email: string;
 };
 
+/**
+ * 本文。Tiptap（ProseMirror）のドキュメントJSON。
+ *
+ * HTML文字列ではなくJSONで持つ理由：
+ * - 保存物が「表示用の文字列」ではなく構造になるので、あとから見出しを拾って
+ *   目次を作る（REQ-02）とか、埋め込みだけ差し替えるといった加工ができる
+ * - HTMLをそのまま保存すると、書き込み経路が1つでも緩むとXSSがDBに居座る。
+ *   JSONなら描画時に既知のノードだけをHTMLに変換すればよい（body.ts）
+ */
+export type RichTextDoc = {
+  type: "doc";
+  content?: RichTextNode[];
+};
+
+export type RichTextNode = {
+  type: string;
+  attrs?: Record<string, unknown>;
+  content?: RichTextNode[];
+  marks?: { type: string; attrs?: Record<string, unknown> }[];
+  text?: string;
+};
+
+export const EMPTY_DOC: RichTextDoc = { type: "doc", content: [] };
+
 export type Article = {
   /** 一意。メディア側の /[slug] になる */
   slug: string;
@@ -74,8 +98,7 @@ export type Article = {
   hashtags: string[];
   /** 複数可（共著対応・REQ-06/07）。author.id の配列 */
   authorIds: string[];
-  /** Markdown */
-  body: string;
+  body: RichTextDoc;
   /**
    * 公開日。予約投稿のときは未来の日時が入る。
    * updatedAt とは別に保持する（REQ-04・05）。
@@ -106,6 +129,21 @@ export const COLLECTIONS = {
   likes: "likes",
 } as const;
 
+/** 空の本文か。空段落だけの状態も空として扱う */
+export function isEmptyDoc(doc: RichTextDoc | null | undefined): boolean {
+  if (!doc?.content?.length) return true;
+  return !hasText(doc.content);
+}
+
+function hasText(nodes: RichTextNode[]): boolean {
+  return nodes.some((node) => {
+    if (node.text?.trim()) return true;
+    // 画像・埋め込みは文字を持たないが中身がある扱いにする
+    if (node.type === "image" || node.type === "youtube") return true;
+    return node.content ? hasText(node.content) : false;
+  });
+}
+
 /**
  * 公開できる状態かを判定する。
  * アイキャッチが必須なのは要件 6.3。ここを緩めると OGP 画像が出ない記事が公開される。
@@ -124,7 +162,7 @@ export function validateForPublish(article: Article): string[] {
   if (article.eyecatch && !article.eyecatch.alt.trim())
     errors.push("アイキャッチの代替テキストが空です");
   if (article.authorIds.length === 0) errors.push("著者が未設定です");
-  if (!article.body.trim()) errors.push("本文が空です");
+  if (isEmptyDoc(article.body)) errors.push("本文が空です");
   if (article.status === "scheduled" && !article.publishedAt)
     errors.push("予約投稿なのに公開日時が入っていません");
 

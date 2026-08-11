@@ -1,0 +1,617 @@
+/* ===========================================================
+   管理画面（/admin）
+   公開側のトーンは踏襲するが、道具なので密度を上げている。
+   イエローは公開側と同じく点でしか使わない。
+   =========================================================== */
+
+.admin {
+  min-height: 100dvh;
+  background: var(--paper-2);
+}
+
+.admin--bare {
+  display: grid;
+  place-items: center;
+  padding: 24px;
+}
+
+/* ---------- ヘッダー ---------- */
+.admin__head {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 0 clamp(16px, 3vw, 28px);
+  height: 56px;
+  background: var(--paper);
+  border-bottom: 1px solid var(--line);
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+
+.admin__brand a {
+  font-weight: 800;
+  text-decoration: none;
+  font-size: 15px;
+}
+
+.admin__nav {
+  display: flex;
+  gap: 18px;
+  font-size: 14px;
+}
+
+.admin__nav a {
+  text-decoration: none;
+  color: var(--ink-2);
+}
+
+.admin__nav a:hover {
+  color: var(--ink);
+}
+
+.admin__me {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 13px;
+}
+
+.admin__meName {
+  color: var(--ink-2);
+}
+
+.admin__logout {
+  appearance: none;
+  border: 1px solid var(--line);
+  background: var(--paper);
+  border-radius: 999px;
+  padding: 6px 14px;
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.admin__logout:hover {
+  background: var(--paper-2);
+}
+
+.admin__body {
+  max-width: 1180px;
+  margin-inline: auto;
+  padding: clamp(20px, 3vw, 36px) clamp(16px, 3vw, 28px) 80px;
+}
+
+.admin__pageHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.admin__pageHead h1 {
+  font-size: clamp(20px, 3vw, 26px);
+  font-weight: 800;
+}
+
+.admin__lead {
+  color: var(--ink-2);
+  font-size: 14px;
+  margin-bottom: 24px;
+  max-width: 70ch;
+}
+
+.admin__empty {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 32px;
+  color: var(--ink-2);
+  text-align: center;
+}
+
+/* ---------- 記事一覧 ---------- */
+.admin__table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  overflow: hidden;
+  font-size: 14px;
+}
+
+.admin__table th,
+.admin__table td {
+  text-align: left;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--line);
+  vertical-align: top;
+}
+
+.admin__table th {
+  background: var(--paper-2);
+  font-size: 12px;
+  color: var(--ink-3);
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+}
+
+.admin__table tr:last-child td {
+  border-bottom: 0;
+}
+
+.admin__table a {
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.admin__table a:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.admin__slug {
+  display: block;
+  font-size: 12px;
+  color: var(--ink-3);
+}
+
+.admin__status {
+  font-size: 12px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 999px;
+  white-space: nowrap;
+  background: var(--line);
+}
+
+.admin__status.is-published {
+  background: var(--accent-soft);
+}
+
+.admin__status.is-scheduled {
+  background: #e8ecf5;
+}
+
+/* ---------- ログイン ---------- */
+.login {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: clamp(28px, 5vw, 44px);
+  max-width: 440px;
+  width: 100%;
+  text-align: center;
+}
+
+.login__title {
+  font-size: 22px;
+  font-weight: 800;
+  margin-bottom: 10px;
+}
+
+.login__lead {
+  color: var(--ink-2);
+  font-size: 14px;
+}
+
+.login__domain {
+  margin-top: 8px;
+  font-size: 13px;
+  color: var(--ink-3);
+}
+
+.login__warn {
+  margin-top: 16px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: var(--accent-soft);
+  font-size: 13px;
+  text-align: left;
+  line-height: 1.8;
+}
+
+.login__box {
+  margin-top: 24px;
+}
+
+.login__error {
+  margin-top: 14px;
+  color: #a3252b;
+  font-size: 13px;
+}
+
+/* ---------- フォーム ---------- */
+.form__grid {
+  display: grid;
+  gap: 24px;
+  align-items: start;
+}
+
+@media (min-width: 960px) {
+  .form__grid {
+    grid-template-columns: minmax(0, 1fr) 340px;
+    gap: 28px;
+  }
+}
+
+.form__actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.form__delete {
+  color: #a3252b;
+}
+
+.form__errors {
+  margin: 0 0 18px;
+  padding: 14px 16px 14px 34px;
+  background: #fdf0f0;
+  border: 1px solid #f0c9c9;
+  border-radius: 10px;
+  color: #a3252b;
+  font-size: 14px;
+}
+
+.form__saved {
+  margin-bottom: 18px;
+  color: #1f7a4d;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.field {
+  display: block;
+  margin-bottom: 18px;
+}
+
+.field__label {
+  display: block;
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.field__label small {
+  display: block;
+  font-weight: 400;
+  color: var(--ink-3);
+  font-size: 12px;
+  margin-top: 2px;
+}
+
+.field__input {
+  width: 100%;
+  font: inherit;
+  font-size: 14px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--paper);
+  color: var(--ink);
+}
+
+.field__input:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 1px;
+}
+
+.field__input--title {
+  font-size: 20px;
+  font-weight: 700;
+}
+
+textarea.field__input {
+  resize: vertical;
+  line-height: 1.8;
+}
+
+/* ---------- サイドのパネル ---------- */
+.panel {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 18px 18px 6px;
+  margin-bottom: 18px;
+}
+
+.panel__title {
+  font-size: 14px;
+  font-weight: 800;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.panel__req {
+  font-size: 11px;
+  font-weight: 700;
+  background: var(--accent-soft);
+  border-radius: 999px;
+  padding: 2px 8px;
+}
+
+.panel__sub {
+  font-weight: 400;
+  color: var(--ink-3);
+  font-size: 12px;
+}
+
+.panel__note {
+  font-size: 13px;
+  color: var(--ink-2);
+  line-height: 1.8;
+  margin-bottom: 14px;
+}
+
+.panel__warn {
+  font-size: 13px;
+  line-height: 1.8;
+  background: var(--accent-soft);
+  border-radius: 8px;
+  padding: 8px 10px;
+  margin-bottom: 12px;
+}
+
+.eyecatch__img {
+  width: 100%;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+}
+
+.eyecatch__size {
+  font-size: 12px;
+  color: var(--ink-3);
+  margin: 6px 0 10px;
+}
+
+.checks {
+  list-style: none;
+  margin: 0 0 14px;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+  font-size: 14px;
+}
+
+.checks label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.checks__role {
+  color: var(--ink-3);
+  font-size: 12px;
+}
+
+/* ---------- エディタ ---------- */
+.editor {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--paper);
+  /* overflow:hidden にしない。
+     ツールバーの position:sticky の基準がこの箱自身になってしまい、
+     ツールバーが箱の中で 56px 下がって本文と重なる。
+     角の処理は子側の border-radius で行う。 */
+}
+
+.editor--loading {
+  padding: 24px;
+  color: var(--ink-3);
+  font-size: 14px;
+}
+
+.editor__bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 8px;
+  border-bottom: 1px solid var(--line);
+  background: var(--paper-2);
+  border-radius: 11px 11px 0 0;
+  /* 管理画面のヘッダー（56px）の下に貼り付く */
+  position: sticky;
+  top: 56px;
+  z-index: 10;
+}
+
+.editor__btn {
+  appearance: none;
+  border: 1px solid transparent;
+  background: transparent;
+  border-radius: 8px;
+  padding: 6px 10px;
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+  color: var(--ink-2);
+}
+
+.editor__btn:hover:not(:disabled) {
+  background: var(--paper);
+  border-color: var(--line);
+  color: var(--ink);
+}
+
+.editor__btn[aria-pressed="true"] {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: #fff;
+}
+
+.editor__btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.editor__content {
+  padding: 20px;
+  min-height: 380px;
+  line-height: 1.9;
+  outline: none;
+}
+
+.editor__content:focus-visible {
+  outline: none;
+}
+
+.editor__content > * + * {
+  margin-top: 1em;
+}
+
+.editor__content h2 {
+  font-size: 1.4em;
+  font-weight: 800;
+  margin-top: 1.6em;
+}
+
+.editor__content h3 {
+  font-size: 1.15em;
+  font-weight: 700;
+  margin-top: 1.4em;
+}
+
+.editor__content blockquote {
+  border-left: 3px solid var(--line);
+  padding-left: 14px;
+  color: var(--ink-2);
+  margin-left: 0;
+}
+
+.editor__content pre {
+  background: var(--ink);
+  color: #f4f4f2;
+  padding: 14px 16px;
+  border-radius: 10px;
+  overflow-x: auto;
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.editor__content code {
+  font-size: 0.92em;
+}
+
+.editor__content :not(pre) > code {
+  background: var(--paper-2);
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  padding: 1px 5px;
+}
+
+.editor__content img {
+  border-radius: 10px;
+  max-width: 100%;
+}
+
+.editor__content iframe {
+  max-width: 100%;
+  border-radius: 10px;
+  border: 0;
+}
+
+.editor__content a {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.editor__content ul,
+.editor__content ol {
+  padding-left: 1.4em;
+}
+
+/* プレースホルダ代わり。空のときに何を書く場所か分かるように */
+.editor__content p.is-editor-empty:first-child::before {
+  content: "本文を書いてください";
+  color: var(--ink-3);
+  float: left;
+  height: 0;
+  pointer-events: none;
+}
+
+.editor__hint {
+  font-size: 12px;
+  color: var(--ink-3);
+  padding: 8px 12px;
+  border-top: 1px solid var(--line);
+  background: var(--paper-2);
+  border-radius: 0 0 11px 11px;
+}
+
+/* ---------- 著者 ---------- */
+.authors {
+  display: grid;
+  gap: 18px;
+}
+
+@media (min-width: 900px) {
+  .authors {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.authorCard__head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.authorCard__av {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: var(--line);
+  flex: 0 0 auto;
+}
+
+.authorCard__av--initial {
+  display: grid;
+  place-items: center;
+  font-weight: 800;
+  color: var(--ink-2);
+}
+
+.authorCard__name {
+  font-weight: 700;
+}
+
+.authorCard__mail {
+  font-size: 12px;
+  color: var(--ink-3);
+}
+
+.authorCard__links {
+  display: grid;
+  gap: 0 14px;
+}
+
+@media (min-width: 560px) {
+  .authorCard__links {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.authorCard__member {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  margin-bottom: 16px;
+}
+
+.authorCard__foot {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-bottom: 12px;
+}

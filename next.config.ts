@@ -16,6 +16,10 @@ const isStaticPreview = process.env.STATIC_EXPORT === "1";
 const nextConfig: NextConfig = {
   reactStrictMode: true,
 
+  // firebase-admin は依存（jose / jwks-rsa）がESMとCJSを混ぜており、
+  // バンドルすると require() で落ちる。Node にそのまま解決させる。
+  serverExternalPackages: ["firebase-admin"],
+
   // 親ディレクトリにも lockfile があるとルートを取り違える。
   // ビルドトレースがずれるとデプロイでファイルを取りこぼすので明示する。
   outputFileTracingRoot: path.join(__dirname),

@@ -1,0 +1,76 @@
+rules_version = '2';
+
+// 株式会社888 オウンドメディア Firestore ルール
+//
+// 指示書 5.2:「ルール設計を誤ると誰でも書き換えられる。実装時に必ずレビューする」
+//
+// 前提として、記事と著者の書き込みはすべてサーバー側（Admin SDK）を通る。
+// Admin SDK はルールを迂回するので、ここで書いている deny は
+// 「ブラウザから直接叩かれたとき」の防波堤になる。
+// つまり、書き込みは原則すべて閉じてよい。
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    // 社内ドメインのアカウントか。ドメインは deploy 時に置き換える。
+    // [要確認] 未確定#11：888の Google Workspace 管理ドメイン
+    function isStaff() {
+      return isSignedIn()
+        && request.auth.token.email_verified == true
+        && request.auth.token.email.matches('.*@888incs[.]com$');
+    }
+
+    // 記事と著者はブラウザから直接読ませない。
+    //
+    // 当初は「公開済みだけ匿名で読める」と書いていたが、list は個々の
+    // ドキュメントではなくクエリに対して評価されるため、下書きを含みうる
+    // 一覧取得は結局すべて弾かれる。条件を書いても効かないうえ、
+    // 下書きが漏れる書き方を後から足してしまう余地が残る。
+    //
+    // 公開側の記事表示はサーバー（App Hosting）が Admin SDK で読むので、
+    // ここは閉じ切って構わない。開ける必要が出たら、その時点で
+    // 公開済みだけを持つ別コレクションを用意する方向で考える。
+    match /articles/{slug} {
+      allow read: if isStaff();
+      // 書き込みはサーバー（Admin SDK）経由のみ。ブラウザからは一切通さない
+      allow create, update, delete: if false;
+    }
+
+    match /authors/{authorId} {
+      allow read: if isStaff();
+      allow create, update, delete: if false;
+    }
+
+    // いいね（指示書 5.2 / NEW-01）。実装順序6で使う。
+    // ブラウザから直接読み書きする唯一のコレクションなので、ここだけ条件を細かく書く。
+    match /likes/{articleSlug} {
+      allow get, list: if true;
+
+      // 作成時は必ず 1 から。まとめて大きな数を入れられないようにする
+      allow create: if request.resource.data.keys().hasOnly(['count', 'updatedAt'])
+        && request.resource.data.count == 1
+        && request.resource.data.updatedAt == request.time;
+
+      // 増減は 1 ずつだけ。フィールドを増やさせない
+      allow update: if request.resource.data.keys().hasOnly(['count', 'updatedAt'])
+        && request.resource.data.count is int
+        && request.resource.data.count >= 0
+        && (
+          request.resource.data.count == resource.data.count + 1
+          || request.resource.data.count == resource.data.count - 1
+        )
+        && request.resource.data.updatedAt == request.time;
+
+      allow delete: if false;
+    }
+
+    // 上のどれにも当たらないパスは全部閉じる。
+    // 新しいコレクションを足したとき、ルールを書き忘れて開いたままになるのを防ぐ。
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

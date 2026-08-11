@@ -10,6 +10,7 @@ import { Timestamp } from "firebase-admin/firestore";
 
 import {
   COLLECTIONS,
+  EMPTY_DOC,
   type Article,
   type ArticleStatus,
   type Author,
@@ -37,7 +38,7 @@ function toArticle(id: string, data: Unknown): Article {
     tags: (data.tags as string[]) ?? [],
     hashtags: (data.hashtags as string[]) ?? [],
     authorIds: (data.authorIds as string[]) ?? [],
-    body: (data.body as string) ?? "",
+    body: (data.body as Article["body"]) ?? EMPTY_DOC,
     publishedAt: toDate(data.publishedAt),
     updatedAt: toDate(data.updatedAt) ?? new Date(0),
     createdAt: toDate(data.createdAt) ?? new Date(0),

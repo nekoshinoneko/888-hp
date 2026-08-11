@@ -1,9 +1,6 @@
 import type { Metadata, Viewport } from "next";
 
-import { SiteFooter } from "@/components/layout/SiteFooter";
-import { SiteHeader } from "@/components/layout/SiteHeader";
 import { OpeningSeenScript } from "@/components/motion/Opening";
-import { ScrollReveal } from "@/components/motion/ScrollReveal";
 import { asset, siteConfig } from "@/content/site";
 
 import "@/styles/tokens.css";
@@ -13,8 +10,11 @@ import "@/styles/layout.css";
 import "@/styles/home.css";
 
 /**
+ * html / body だけを持つ最上位のレイアウト。
+ * 会社サイトのヘッダー・フッターは (site) 側に置いてある。
+ * /admin はそれを被らないよう別のレイアウトを持つ。
+ *
  * OGP・構造化データ・sitemap・robots は実装順序7でまとめて入れる。
- * ドメインが未確定（未確定#2）のため、いまは絶対URLを出す設定を置かない。
  */
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
@@ -51,7 +51,7 @@ const noScriptFallback = `[data-reveal]{opacity:1!important;transform:none!impor
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  // suppressHydrationWarning：OpeningSessionScript が <html> に is-opening-seen を
+  // suppressHydrationWarning：OpeningSeenScript が <html> に is-opening-seen を
   // 付けるので、サーバーが返したHTMLとクラスが一致しない。これは意図した差分。
   return (
     <html lang="ja" suppressHydrationWarning>
@@ -61,12 +61,7 @@ export default function RootLayout({
           <style dangerouslySetInnerHTML={{ __html: noScriptFallback }} />
         </noscript>
       </head>
-      <body>
-        <SiteHeader />
-        {children}
-        <SiteFooter />
-        <ScrollReveal />
-      </body>
+      <body>{children}</body>
     </html>
   );
 }
