@@ -1,0 +1,43 @@
+rules_version = '2';
+
+// 株式会社888 オウンドメディア Cloud Storage ルール
+//
+// アイキャッチと本文中の画像はブラウザから直接アップロードする。
+// つまりここが唯一の関門になるので、クライアント側の検査（upload.ts）を当てにしない。
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    function isStaff() {
+      return request.auth != null
+        && request.auth.token.email_verified == true
+        // [要確認] 未確定#11：888の Google Workspace 管理ドメイン
+        && request.auth.token.email.matches('.*@888incs[.]com$');
+    }
+
+    function isImage() {
+      return request.resource.contentType.matches('image/(jpeg|png|webp|gif)');
+    }
+
+    function withinSizeLimit() {
+      return request.resource.size <= 5 * 1024 * 1024; // 5MB
+    }
+
+    // アイキャッチと本文中の画像。記事に出るので読み取りは公開
+    match /{folder}/{fileName} {
+      allow read: if folder in ['eyecatch', 'body'];
+
+      allow create, update: if folder in ['eyecatch', 'body']
+        && isStaff()
+        && isImage()
+        && withinSizeLimit();
+
+      // 消すのは運用で事故りやすいので閉じておく。
+      // 差し替えは新しいファイルを上げて参照を切り替える運用にする。
+      allow delete: if false;
+    }
+
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

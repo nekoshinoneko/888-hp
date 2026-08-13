@@ -16,6 +16,10 @@ docs/
 
 .claude/settings.local.json
 
+# Firebase エミュレータが吐くログとローカルの状態
+*-debug.log
+.firebase/
+
 .DS_Store
 *.pem
 npm-debug.log*
