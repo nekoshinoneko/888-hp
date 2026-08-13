@@ -33,8 +33,12 @@ export function Opening() {
  * 読み取り側は <head> に置く。body の解析より前に <html> へクラスが付くので、
  * 2回目以降に幕が一瞬見えてから消える、という出方をしない。
  * 幕が無いページで付いても効き先が無いだけなので、ページの判定は不要。
+ *
+ * ついでに <html class="no-js"> を外す。JSが動かない環境ではクラスが残り、
+ * stage.css の .no-js ルールがスクロール演出を無効化して静的な状態で見せる。
  */
-const readSeenScript = `try{
+const readSeenScript = `document.documentElement.classList.remove('no-js');
+try{
 if(sessionStorage.getItem('888:opening-seen')){document.documentElement.classList.add('is-opening-seen')}
 }catch(e){}`;
 

@@ -7,6 +7,7 @@ import "@/styles/tokens.css";
 import "@/styles/base.css";
 import "@/styles/motion.css";
 import "@/styles/layout.css";
+import "@/styles/stage.css";
 import "@/styles/home.css";
 
 /**
@@ -54,7 +55,7 @@ export default function RootLayout({
   // suppressHydrationWarning：OpeningSeenScript が <html> に is-opening-seen を
   // 付けるので、サーバーが返したHTMLとクラスが一致しない。これは意図した差分。
   return (
-    <html lang="ja" suppressHydrationWarning>
+    <html lang="ja" className="no-js" suppressHydrationWarning>
       <head>
         <OpeningSeenScript />
         <noscript>

@@ -1,0 +1,421 @@
+/* ===========================================================
+   ステージ（ファーストビュー）
+
+   adoor.inc から持ち込んだのは「仕組み」だけ：
+   スクロールの占有（pin + scrub）/ 触る前から動いている / 縦軸のUI /
+   大字＋広いトラッキング。
+
+   比喩は差し替えている。adoor の「奥へ飛ぶトンネル」はあちらの世界観で、
+   888 のロゴは「8を連打して拍手する」歓声のマーク。
+   なので動きは “拍手が外へ広がる”。ロゴの吹き出しの形が波紋になって広がる。
+
+   地は白のまま（指示書2.1）。色は3つのまま。イエローは点にしか使わない。
+   演出はすべて --p（0→1のスクロール進捗）1本から calc() で導く。
+   =========================================================== */
+
+.stage {
+  /* ScrollStage が毎フレーム上書きする。JSが動かなければ 0 のまま＝静止した完成形 */
+  --p: 0;
+  position: relative;
+  height: var(--stage-scroll);
+  background: var(--paper);
+  color: var(--ink);
+}
+
+/* pin。GSAP の pin ではなく position:sticky。JSを1行も使わない */
+.stage__pin {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  isolation: isolate;
+}
+
+/* ---------- 拍手の波紋 ----------
+   ロゴの吹き出しと同じ丸みの矩形が、中心から連続して広がる。
+   動かすのは transform と opacity だけ。3D も perspective も使わない
+   （前版は translateZ が perspective 面を越えて投影倍率が発散し、描画が固まった）。 */
+.burst {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+  /* スクロールで全体がさらに開いて薄れ、本文に席を譲る */
+  transform: scale(calc(1 + var(--p) * 1.7));
+  opacity: clamp(0, calc(1 - var(--p) * 1.5), 1);
+}
+
+.burst__ring {
+  grid-area: 1 / 1;
+  width: var(--burst-size);
+  aspect-ratio: var(--burst-ratio);
+  border: 1px solid var(--ripple-line);
+  border-radius: var(--burst-radius);
+  /* 触る前から動いている状態。1枚ずつ時間差で外へ抜けていく＝連打 */
+  animation: ripple-out var(--burst-duration) linear infinite;
+  animation-delay: calc(var(--i) * var(--burst-duration) / 8 * -1);
+}
+
+/* 3枚ごとに黄色を線で薄く効かせる。面では塗らない */
+.burst__ring.is-lit {
+  border-color: var(--ripple-lit);
+}
+
+@keyframes ripple-out {
+  0% {
+    transform: scale(0.14);
+    opacity: 0;
+  }
+  14% {
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0;
+  }
+}
+
+/* ---------- 中央の3点 ----------
+   ● ● ● の中央だけがイエロー。仮サムネイル（thumb-*.svg）が使っている
+   ブランド自身の略記をそのまま持ってきて、拍手のリズムで順に弾ませる。 */
+.clap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(9px, 1.4vw, 14px);
+  margin: 0 0 clamp(22px, 3.4vw, 34px);
+}
+
+.clap span {
+  width: clamp(8px, 1.1vw, 11px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: var(--dot-mute);
+  animation: clap-beat 1.5s var(--ease-inout, ease-in-out) infinite;
+}
+
+.clap span:nth-child(2) {
+  background: var(--accent);
+  animation-delay: 0.13s;
+}
+
+.clap span:nth-child(3) {
+  animation-delay: 0.26s;
+}
+
+@keyframes clap-beat {
+  0%,
+  55%,
+  100% {
+    transform: scale(1);
+  }
+  22% {
+    transform: scale(1.55);
+  }
+}
+
+/* ---------- 見出し ----------
+   最初から読める。名刺QRから来た人が最初に知りたいのは「何の会社か」なので、
+   ここを演出の後ろに隠さない（要件定義4.1）。
+   スクロールが担うのは登場ではなく退場——本文へ渡す動き。 */
+.stage__copy {
+  position: relative;
+  grid-area: 1 / 1;
+  z-index: 3;
+  width: 100%;
+  max-width: var(--wrap);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+  text-align: center;
+  opacity: clamp(0, calc(1 - (var(--p) - 0.5) * 3), 1);
+  transform: translateY(calc(var(--p) * -64px));
+}
+
+.stage__eyebrow {
+  font-size: clamp(10px, 1.1vw, 12px);
+  letter-spacing: 0.42em;
+  font-weight: 700;
+  color: var(--ink-3);
+  margin: 0 0 clamp(18px, 3vw, 28px);
+  /* letter-spacing が末尾にも入るぶんを戻して、光学的に中央へ寄せる */
+  text-indent: 0.42em;
+}
+
+.stage__h1 {
+  font-size: clamp(30px, 7.2vw, 72px);
+  line-height: 1.32;
+  font-weight: 700;
+  letter-spacing: 0.005em;
+  margin: 0;
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+
+.stage__h1 span {
+  display: block;
+}
+
+.stage__lede {
+  margin-top: clamp(20px, 3.4vw, 34px);
+  font-size: clamp(14px, 1.5vw, 17px);
+  line-height: 1.9;
+  color: var(--ink-2);
+}
+
+/* ---------- スクロールを促す ---------- */
+.stage__hint {
+  position: absolute;
+  z-index: 3;
+  left: 50%;
+  bottom: clamp(20px, 4vh, 40px);
+  translate: -50% 0;
+  font-size: 10px;
+  letter-spacing: 0.32em;
+  font-weight: 700;
+  color: var(--ink-3);
+  opacity: clamp(0, calc(1 - var(--p) * 4), 1);
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  text-indent: 0.32em;
+}
+
+.stage__hintLine {
+  width: 1px;
+  height: 44px;
+  background: linear-gradient(to bottom, var(--ink-3), rgba(255, 255, 255, 0));
+  animation: hint-fall 2.2s var(--ease-inout, ease-in-out) infinite;
+  transform-origin: top;
+}
+
+@keyframes hint-fall {
+  0% {
+    transform: scaleY(0);
+    opacity: 0;
+  }
+  40% {
+    transform: scaleY(1);
+    opacity: 1;
+  }
+  100% {
+    transform: scaleY(1) translateY(44px);
+    opacity: 0;
+  }
+}
+
+/* ---------- マーキー ----------
+   adoor の infiniteslide の代わり。CSSだけで流す。
+   帯は既存のセクション帯（.claim / .media / .event）と同じ --paper-2 にして、
+   ページ全体のリズムから外れないようにする。 */
+.marquee {
+  background: var(--paper-2);
+  color: var(--ink);
+  overflow: hidden;
+  padding: clamp(14px, 2.4vw, 22px) 0;
+  border-block: 1px solid var(--line);
+  /* 端を落として、切れているのではなく流れていると見せる */
+  mask-image: linear-gradient(
+    to right,
+    transparent,
+    #000 8%,
+    #000 92%,
+    transparent
+  );
+}
+
+.marquee__track {
+  display: flex;
+  width: max-content;
+  animation: marquee-run var(--marquee-duration) linear infinite;
+}
+
+.marquee__group {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+}
+
+.marquee__item {
+  display: inline-flex;
+  align-items: center;
+  gap: clamp(20px, 3vw, 40px);
+  padding-inline: clamp(20px, 3vw, 40px);
+  font-size: clamp(13px, 1.5vw, 16px);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+  color: var(--ink-2);
+}
+
+/* 区切りの点。ここもイエローは点でだけ */
+.marquee__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  flex: 0 0 auto;
+}
+
+@keyframes marquee-run {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+/* ---------- 縦軸のUI ----------
+   期待される横軸を外すと「手が込んでいる」信号になる、というだけの部品。
+   これが無くても導線は成立する（ヘッダーのCTAが本線）。
+   1080px以下では出さない。狭い画面では本文を削るほうが損。 */
+
+.rail-contact {
+  display: none;
+}
+
+.rail-progress {
+  display: none;
+}
+
+@media (min-width: 1080px) {
+  .rail-contact {
+    display: block;
+    position: fixed;
+    right: 0;
+    top: 50%;
+    translate: 0 -50%;
+    z-index: 40;
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    padding: 22px 12px;
+    background: var(--ink);
+    color: #fff;
+    text-decoration: none;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.24em;
+    border-radius: 8px 0 0 8px;
+    transition: background 0.2s var(--ease-out, ease), translate 0.2s
+        var(--ease-out, ease);
+  }
+
+  .rail-contact:hover,
+  .rail-contact:focus-visible {
+    background: var(--ink-2);
+    translate: -3px -50%;
+  }
+
+  /* 点だけがイエロー。文字は白のまま */
+  .rail-contact::before {
+    content: "";
+    display: block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    margin: 0 auto 12px;
+  }
+
+  .rail-progress {
+    display: block;
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    z-index: 40;
+    background: var(--line);
+    pointer-events: none;
+  }
+
+  .rail-progress__bar {
+    width: 100%;
+    height: 100%;
+    background: var(--ink);
+    transform-origin: top;
+    transform: scaleY(var(--scroll-progress, 0));
+  }
+
+  .rail-progress__dot {
+    position: absolute;
+    left: -2px;
+    top: calc(var(--scroll-progress, 0) * 100%);
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    translate: 0 -50%;
+  }
+}
+
+/* ---------- 打ち消し ----------
+   JS無効：スクロールで動かす部分が効かないので、高さを持たせない。
+   見出しは --p:0 の時点で読める状態なので、そのまま静止画として成立する。 */
+.no-js .stage {
+  height: auto;
+}
+
+.no-js .stage__pin {
+  position: static;
+  height: auto;
+  min-height: 68vh;
+  padding-block: clamp(72px, 14vh, 160px);
+}
+
+.no-js .stage__hint {
+  display: none;
+}
+
+.no-js .marquee__track {
+  animation: none;
+  width: 100%;
+  flex-wrap: wrap;
+}
+
+/* prefers-reduced-motion：動くものを全部止める。
+   止めた結果として何かが消えないよう、位置と不透明度は明示的に戻す。 */
+@media (prefers-reduced-motion: reduce) {
+  .stage {
+    height: auto;
+  }
+
+  .stage__pin {
+    position: static;
+    height: auto;
+    min-height: 68vh;
+    padding-block: clamp(72px, 14vh, 160px);
+  }
+
+  /* 波紋と促しは飾りなので出さない。3点は静止して残す（ブランドの記号なので） */
+  .burst,
+  .stage__hint {
+    display: none;
+  }
+
+  .clap span,
+  .stage__hintLine {
+    animation: none;
+  }
+
+  .stage__copy {
+    opacity: 1;
+    transform: none;
+  }
+
+  .marquee__track {
+    animation: none;
+    /* 止めたときに端が切れて読めなくならないよう折り返す */
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .marquee {
+    mask-image: none;
+  }
+}

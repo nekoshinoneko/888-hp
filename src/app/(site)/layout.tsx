@@ -1,6 +1,8 @@
+import { ContactRail } from "@/components/layout/ContactRail";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { ScrollReveal } from "@/components/motion/ScrollReveal";
+import { ScrollStage } from "@/components/motion/ScrollStage";
 
 /**
  * 公開側（会社サイト）の共通レイアウト。
@@ -14,7 +16,9 @@ export default function SiteLayout({
       <SiteHeader />
       {children}
       <SiteFooter />
+      <ContactRail />
       <ScrollReveal />
+      <ScrollStage />
     </>
   );
 }
