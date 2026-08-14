@@ -5,11 +5,11 @@
    スクロールの占有（pin + scrub）/ 触る前から動いている / 縦軸のUI /
    大字＋広いトラッキング。
 
-   比喩は差し替えている。adoor の「奥へ飛ぶトンネル」はあちらの世界観で、
-   888 のロゴは「8を連打して拍手する」歓声のマーク。
-   なので動きは “拍手が外へ広がる”。ロゴの吹き出しの形が波紋になって広がる。
+   見せ方は漫画にしている。ロゴが吹き出しで、社名は拍手の擬音（パチパチパチ）。
+   会社の言い切りを吹き出しに入れ、背後に集中線を置き、描き文字を添える。
+   漫画の部品そのものは comic.css にある。ここはその組み立て。
 
-   地は白のまま（指示書2.1）。色は3つのまま。イエローは点にしか使わない。
+   地は白のまま（指示書2.1）。色は3つのまま。イエローは点と淡い下地まで。
    演出はすべて --p（0→1のスクロール進捗）1本から calc() で導く。
    =========================================================== */
 
@@ -22,118 +22,188 @@
   color: var(--ink);
 }
 
-/* pin。GSAP の pin ではなく position:sticky。JSを1行も使わない */
+/* pin。GSAP の pin ではなく position:sticky。JSを1行も使わない。
+
+   ヘッダーは sticky で流れの中にいるので、top:0 / height:100dvh にすると
+   ステージ全体がヘッダーの高さぶん下にずれ、下端（SCROLLの促し）が
+   画面外に出る。ヘッダーの下の実効ビューポートに合わせる。 */
 .stage__pin {
   position: sticky;
-  top: 0;
-  height: 100vh;
-  height: 100dvh;
+  top: calc(var(--head-h) + 1px);
+  height: calc(100vh - var(--head-h) - 1px);
+  height: calc(100dvh - var(--head-h) - 1px);
   overflow: hidden;
   display: grid;
   place-items: center;
   isolation: isolate;
 }
 
-/* ---------- 拍手の波紋 ----------
-   ロゴの吹き出しと同じ丸みの矩形が、中心から連続して広がる。
-   動かすのは transform と opacity だけ。3D も perspective も使わない
-   （前版は translateZ が perspective 面を越えて投影倍率が発散し、描画が固まった）。 */
-.burst {
+/* ---------- 集中線 ----------
+   comic.css の .focus をここで動かす。
+   トンネルの速度線を兼ねるので、進んでいるあいだは消さずに少し強める。 */
+.stage .focus {
+  z-index: 0;
+  transform-origin: 50% 46%;
+  scale: calc(1 + var(--p) * 0.5);
+  /* 進むほど濃くする。吹き出しが着地する瞬間が一番強い */
+  opacity: calc(0.09 + var(--p) * 0.09);
+}
+
+/* ---------- 奥行きのトンネル ----------
+   漫画のコマ割りを奥行きに置き換えたもの。
+   コマが奥に等間隔で待っていて、スクロールで手前へ流れてくる。 */
+.corridor {
   position: absolute;
   inset: 0;
-  z-index: 0;
+  z-index: 1;
+  perspective: var(--corridor-perspective);
+  perspective-origin: 50% 46%;
+  pointer-events: none;
+  transform-style: preserve-3d;
+}
+
+.koma {
+  position: absolute;
+  left: 50%;
+  top: 44%;
+  width: clamp(190px, 33vmin, 400px);
+
+  /* 奥に等間隔で置き、--p で手前に引き寄せる。
+     --koma-start のぶん全体を奥へ下げてあるので、読み込んだ直後は1枚も見えない。 */
+  --z: calc(
+    (var(--koma-start) + var(--i) * var(--koma-gap)) * -1 +
+      (var(--p) * var(--koma-travel))
+  );
+
+  /* min() でカメラ面より手前に行かせない。ここを外すと投影倍率が発散する。
+     横ずれは vw、縦ずれは vh で持つ。px で持つと、広い画面では中央に寄って
+     トンネルに見えず、狭い画面では画面外に出て読めなくなる。 */
+  transform: translate3d(
+      calc(-50% + var(--x) * 1vw),
+      calc(-50% + var(--y) * 1vh),
+      calc(min(var(--z), var(--koma-znear)) * 1px)
+    )
+    rotate(calc(var(--r) * 1deg));
+
+  /* 遠くでは薄く、手前を通り過ぎるときに抜ける。
+     どちらの側も上限に達する前に消えきるので、潰れる様子は見えない。 */
+  opacity: clamp(
+    0,
+    min(
+      calc((var(--koma-znear) - var(--z)) / var(--koma-fade)),
+      calc((var(--z) + var(--koma-far)) / var(--koma-farfade))
+    ),
+    1
+  );
+}
+
+/* コマ枠そのもの。comic.css の .panel-comic と同じ語彙 */
+.koma__frame {
+  background: var(--paper);
+  border: var(--ink-w) solid var(--ink);
+  border-radius: var(--panel-r);
+  box-shadow: var(--panel-off) var(--panel-off) 0 var(--ink);
+  overflow: hidden;
+}
+
+/* 写真の枠。まだ写真が無いので、何を入れるかを書いた枠を置いている。
+   [要確認] 未確定#7／要件定義8「必要な素材」：代表・メンバーの顔写真、
+   DemoStage当日の写真、（あれば）オフィス写真。届いたら差し替える。 */
+.koma__slot {
+  margin: 0;
+  aspect-ratio: 4 / 3;
   display: grid;
   place-items: center;
-  pointer-events: none;
-  /* スクロールで全体がさらに開いて薄れ、本文に席を譲る */
-  transform: scale(calc(1 + var(--p) * 1.7));
-  opacity: clamp(0, calc(1 - var(--p) * 1.5), 1);
+  gap: 6px;
+  padding: 14px;
+  text-align: center;
+  border-bottom: var(--ink-w) solid var(--ink);
+  /* 網点を敷いて、空枠ではなく「これから写真が入る面」に見せる */
+  background-color: var(--paper-2);
+  background-image: radial-gradient(
+    var(--tone-dot) var(--tone-r),
+    transparent calc(var(--tone-r) + 0.4px)
+  );
+  background-size: var(--tone-gap) var(--tone-gap);
 }
 
-.burst__ring {
-  grid-area: 1 / 1;
-  width: var(--burst-size);
-  aspect-ratio: var(--burst-ratio);
-  border: 1px solid var(--ripple-line);
-  border-radius: var(--burst-radius);
-  /* 触る前から動いている状態。1枚ずつ時間差で外へ抜けていく＝連打 */
-  animation: ripple-out var(--burst-duration) linear infinite;
-  animation-delay: calc(var(--i) * var(--burst-duration) / 8 * -1);
+.koma__slot img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
-/* 3枚ごとに黄色を線で薄く効かせる。面では塗らない */
-.burst__ring.is-lit {
-  border-color: var(--ripple-lit);
+.koma__what {
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.6;
+  color: var(--ink-2);
 }
 
-@keyframes ripple-out {
-  0% {
-    transform: scale(0.14);
-    opacity: 0;
-  }
-  14% {
-    opacity: 1;
-  }
-  100% {
-    transform: scale(1);
-    opacity: 0;
-  }
+.koma__todo {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--ink);
+  background: var(--accent-soft);
+  border: 1.5px solid var(--ink);
+  border-radius: 999px;
+  padding: 2px 9px;
 }
 
-/* ---------- 中央の3点 ----------
-   ● ● ● の中央だけがイエロー。仮サムネイル（thumb-*.svg）が使っている
-   ブランド自身の略記をそのまま持ってきて、拍手のリズムで順に弾ませる。 */
-.clap {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: clamp(9px, 1.4vw, 14px);
-  margin: 0 0 clamp(22px, 3.4vw, 34px);
+/* コマのセリフ。短く1行だけ。実績の数字は書かない */
+.koma__cap {
+  padding: 12px 14px 14px;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.7;
 }
 
-.clap span {
-  width: clamp(8px, 1.1vw, 11px);
-  aspect-ratio: 1;
-  border-radius: 50%;
-  background: var(--dot-mute);
-  animation: clap-beat 1.5s var(--ease-inout, ease-in-out) infinite;
-}
-
-.clap span:nth-child(2) {
-  background: var(--accent);
-  animation-delay: 0.13s;
-}
-
-.clap span:nth-child(3) {
-  animation-delay: 0.26s;
-}
-
-@keyframes clap-beat {
-  0%,
-  55%,
-  100% {
-    transform: scale(1);
-  }
-  22% {
-    transform: scale(1.55);
-  }
+.koma__cap small {
+  display: block;
+  margin-top: 3px;
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0.1em;
+  color: var(--ink-3);
 }
 
 /* ---------- 見出し ----------
-   最初から読める。名刺QRから来た人が最初に知りたいのは「何の会社か」なので、
-   ここを演出の後ろに隠さない（要件定義4.1）。
-   スクロールが担うのは登場ではなく退場——本文へ渡す動き。 */
+   トンネルを抜けたあとに「だん」と着地する。
+   --land は 0→1 の着地進捗。子（吹き出し・描き文字）もこれを読む。
+
+   会社の言い切りを最後に持ってきているぶん、
+   最初の数秒で「何の会社か」を伝えるのはヘッダーのロゴと
+   コマのセリフが担う。h1 は DOM の先頭にあるので、
+   読み上げとクローラには最初から届く。 */
 .stage__copy {
+  --land: clamp(0, calc((var(--p) - var(--land-at)) * var(--land-span)), 1);
+
   position: relative;
   grid-area: 1 / 1;
   z-index: 3;
   width: 100%;
-  max-width: var(--wrap);
+  max-width: min(880px, var(--wrap));
   margin-inline: auto;
   padding-inline: var(--gutter);
   text-align: center;
-  opacity: clamp(0, calc(1 - (var(--p) - 0.5) * 3), 1);
-  transform: translateY(calc(var(--p) * -64px));
+  opacity: var(--land);
+  transform: translateY(calc((1 - var(--land)) * 30px));
+}
+
+/* ---------- 締めのロゴ ----------
+   トンネルを抜けた先で公式ロゴを大きく出す。
+   ロゴ自体が吹き出しなので、外側をさらに吹き出しで囲うと入れ子になる。
+   ここはロゴ1つで受ける。
+
+   影・グラデーション・縁取りは足さない。縦横比も変えない（指示書）。
+   大きさは高さではなく幅で決め、height:auto で 624:260 を保つ。 */
+.stage__logo {
+  width: min(560px, 78vw);
+  height: auto;
+  margin: 0 auto clamp(22px, 3.6vw, 40px);
+  /* 少し大きい状態から等倍まで詰める。判子を押したときの止まり方 */
+  scale: calc(1.18 - var(--land) * 0.18);
 }
 
 .stage__eyebrow {
@@ -147,7 +217,7 @@
 }
 
 .stage__h1 {
-  font-size: clamp(30px, 7.2vw, 72px);
+  font-size: clamp(23px, 4.4vw, 46px);
   line-height: 1.32;
   font-weight: 700;
   letter-spacing: 0.005em;
@@ -174,11 +244,13 @@
   left: 50%;
   bottom: clamp(20px, 4vh, 40px);
   translate: -50% 0;
-  font-size: 10px;
+  font-size: 11px;
   letter-spacing: 0.32em;
   font-weight: 700;
-  color: var(--ink-3);
-  opacity: clamp(0, calc(1 - var(--p) * 4), 1);
+  color: var(--ink-2);
+  /* 読み込み直後はコマも見出しも出ていないので、ここが唯一の手がかりになる。
+     動き出したら早めに引く */
+  opacity: clamp(0, calc(1 - var(--p) * 6), 1);
   display: grid;
   justify-items: center;
   gap: 10px;
@@ -372,6 +444,25 @@
   display: none;
 }
 
+/* トンネルは奥行きで見せるものなので、スクロールが効かないなら
+   素直にコマを並べる。写真枠の情報は残る。 */
+.no-js .corridor,
+.no-js .koma {
+  position: static;
+  perspective: none;
+  transform: none;
+  opacity: 1;
+  width: auto;
+}
+
+.no-js .corridor {
+  display: grid;
+  gap: 18px;
+  grid-template-columns: repeat(auto-fit, minmax(216px, 1fr));
+  padding: clamp(28px, 6vw, 56px) var(--gutter) 0;
+  pointer-events: auto;
+}
+
 .no-js .marquee__track {
   animation: none;
   width: 100%;
@@ -392,13 +483,36 @@
     padding-block: clamp(72px, 14vh, 160px);
   }
 
-  /* 波紋と促しは飾りなので出さない。3点は静止して残す（ブランドの記号なので） */
-  .burst,
+  /* 促しは飾りなので出さない。集中線・吹き出し・描き文字は絵として残し、
+     動きだけを止める（消すと漫画の雰囲気そのものが無くなるため） */
   .stage__hint {
     display: none;
   }
 
-  .clap span,
+  .stage .focus {
+    scale: 1;
+    opacity: 0.1;
+  }
+
+  /* 奥行きの移動そのものが演出なので、平面に並べ直す。
+     コマも写真枠も消さない（漫画の見せ方と、何を撮るかの情報が本体） */
+  .corridor,
+  .koma {
+    position: static;
+    perspective: none;
+    transform: none;
+    opacity: 1;
+    width: auto;
+  }
+
+  .corridor {
+    display: grid;
+    gap: 18px;
+    grid-template-columns: repeat(auto-fit, minmax(216px, 1fr));
+    padding: clamp(28px, 6vw, 56px) var(--gutter) 0;
+    pointer-events: auto;
+  }
+
   .stage__hintLine {
     animation: none;
   }
@@ -406,6 +520,10 @@
   .stage__copy {
     opacity: 1;
     transform: none;
+  }
+
+  .stage__logo {
+    scale: 1;
   }
 
   .marquee__track {

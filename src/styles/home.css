@@ -29,9 +29,16 @@
 }
 
 /* ---------- 2. 事業の言い切り ---------- */
+/* 言い切りの帯。網点（スクリーントーン）を敷いて、白の面をベタ塗りにしない */
 .claim {
-  background: var(--paper-2);
+  background-color: var(--paper-2);
+  background-image: radial-gradient(
+    var(--tone-dot) var(--tone-r),
+    transparent calc(var(--tone-r) + 0.4px)
+  );
+  background-size: var(--tone-gap) var(--tone-gap);
   padding: clamp(52px, 8vw, 88px) 0;
+  border-block: var(--ink-w) solid var(--ink);
 }
 
 .claim h2 {
@@ -81,14 +88,17 @@
   gap: 14px;
 }
 
+/* 自社プロダクト3本をコマとして並べる。太い輪郭＋硬いオフセット影 */
 .field {
   display: grid;
   grid-template-columns: auto 1fr;
   gap: 14px 18px;
   align-items: start;
   padding: 22px;
-  border: 1px solid var(--line);
-  border-radius: 14px;
+  background: var(--paper);
+  border: var(--ink-w) solid var(--ink);
+  border-radius: var(--panel-r);
+  box-shadow: var(--panel-off) var(--panel-off) 0 var(--ink);
 }
 
 /* 番号バッジ。イエローは背景まで。文字色にはしない */
@@ -98,8 +108,9 @@
   letter-spacing: 0.08em;
   color: var(--ink);
   background: var(--accent-soft);
+  border: 1.5px solid var(--ink);
   border-radius: 999px;
-  padding: 4px 12px;
+  padding: 3px 11px;
 }
 
 .field__t {
@@ -128,7 +139,7 @@
 
 .chip {
   appearance: none;
-  border: 1px solid var(--line);
+  border: 1.5px solid var(--ink);
   background: var(--paper);
   color: var(--ink-2);
   font: inherit;
@@ -141,7 +152,7 @@
 }
 
 .chip:hover {
-  border-color: var(--ink-3);
+  background: var(--accent-soft);
 }
 
 .chip[aria-pressed="true"] {
@@ -190,7 +201,7 @@
   border-radius: 10px;
   overflow: hidden;
   background: var(--line);
-  border: 1px solid var(--line);
+  border: 2px solid var(--ink);
 }
 
 .post__thumb img {
@@ -218,7 +229,8 @@
 .post__tag {
   font-size: 11px;
   font-weight: 700;
-  padding: 3px 10px;
+  padding: 2px 9px;
+  border: 1.5px solid var(--ink);
   border-radius: 999px;
   white-space: nowrap;
   background: var(--accent-soft);
@@ -271,8 +283,35 @@
 
 /* ---------- 6. イベント事業（DemoStage） ---------- */
 .event {
-  background: var(--paper-2);
+  background-color: var(--paper-2);
+  background-image: radial-gradient(
+    var(--tone-dot) var(--tone-r),
+    transparent calc(var(--tone-r) + 0.4px)
+  );
+  background-size: var(--tone-gap) var(--tone-gap);
   padding: clamp(52px, 8vw, 88px) 0;
+  border-block: var(--ink-w) solid var(--ink);
+}
+
+/* なぜやるのか。代表の思いなので吹き出しに入れる。
+   しっぽは comic.css の .bubble が持つ */
+.ds__why {
+  padding: clamp(22px, 3.4vw, 34px) clamp(20px, 3vw, 32px)
+    clamp(24px, 3.4vw, 36px);
+  margin-bottom: clamp(34px, 5vw, 52px);
+  max-width: 72ch;
+}
+
+.ds__whyLead {
+  font-size: clamp(19px, 2.8vw, 27px);
+  font-weight: 800;
+  line-height: 1.5;
+  margin-bottom: clamp(14px, 2vw, 20px);
+  overflow-wrap: anywhere;
+}
+
+.ds__why .lede + .lede {
+  margin-top: 13px;
 }
 
 .ds {
@@ -314,8 +353,9 @@
 .ds__facts {
   margin: 0;
   background: var(--paper);
-  border: 1px solid var(--line);
-  border-radius: 14px;
+  border: var(--ink-w) solid var(--ink);
+  border-radius: var(--panel-r);
+  box-shadow: var(--panel-off) var(--panel-off) 0 var(--ink);
   padding: 8px 20px;
 }
 
@@ -357,8 +397,9 @@
   gap: 14px;
   align-items: start;
   background: var(--paper);
-  border: 1px solid var(--line);
-  border-radius: 14px;
+  border: var(--ink-w) solid var(--ink);
+  border-radius: var(--panel-r);
+  box-shadow: var(--panel-off) var(--panel-off) 0 var(--ink);
   padding: 18px 20px;
 }
 
@@ -367,8 +408,9 @@
   font-weight: 700;
   color: var(--ink);
   background: var(--accent-soft);
+  border: 1.5px solid var(--ink);
   border-radius: 999px;
-  padding: 4px 12px;
+  padding: 3px 11px;
 }
 
 .ds__prog b {

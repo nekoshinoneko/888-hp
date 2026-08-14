@@ -9,6 +9,9 @@ import { mediaUrl } from "@/content/site";
  *
  * 開催情報は prototype.html の記載をそのまま移したもの。
  * 会場の詳細は未確定のため埋めていない。
+ *
+ * 「なぜやるのか」は代表からの口頭の背景をもとにしている。
+ * 在籍人数は「数名」までしか書かない（実績の数字を捏造しない・指示書）。
  */
 const facts: { term: string; detail: string; tbd?: string }[] = [
   { term: "開催日", detail: "2026年8月2日（日）13:00 – 18:30" },
@@ -46,7 +49,27 @@ export function EventSection() {
           caption="つくる人が集まる場を、自分たちで開いています"
         />
 
-        <div className="ds" {...reveal(1)}>
+        {/* なぜやるのか。ここは代表の思いなので吹き出しに入れている。
+            要件定義2.1「DemoStageはイベント実績ではなく技術力の根拠として使う」
+            という位置づけは変えず、その手前に動機を置いた。
+            協賛の募集導線は置かない（指示書1.3・別LPの担当）。 */}
+        <div className="ds__why bubble" {...reveal(1)}>
+          <p className="ds__whyLead">打席に立てない学生が、少なくない。</p>
+          <p className="lede">
+            株式会社888は、昨年まで学生エンジニアだった篠原が代表として設立した会社です。
+            いまも数名の学生エンジニアが在籍していて、関西・東海にルーツを持つメンバーが多く集まっています。
+          </p>
+          <p className="lede">
+            採用も、人と会う機会も、東京に集まります。
+            それ以外の地域にいる学生エンジニアは、力を見せる場所そのものに手が届きにくい。
+            打席に立てないまま終わってしまう人が少なくない、と感じています。
+          </p>
+          <p className="lede">
+            DemoStageは、その打席をこちらで用意するための場です。
+          </p>
+        </div>
+
+        <div className="ds" {...reveal(2)}>
           <div className="ds__lead">
             <p className="ds__name">
               DemoStage<span>デモステージ</span>
@@ -88,7 +111,7 @@ export function EventSection() {
           </dl>
         </div>
 
-        <ul className="ds__prog" {...reveal(2)}>
+        <ul className="ds__prog" {...reveal(3)}>
           {program.map((item) => (
             <li key={item.n}>
               <span className="ds__k">{item.n}</span>

@@ -1,0 +1,138 @@
+/* ===========================================================
+   漫画の語彙
+
+   ロゴが吹き出しで、社名は「8を連打して拍手する」＝パチパチパチ。
+   つまり漫画・ネットの擬音がそのままブランドになっている。
+   だから漫画的な表現は装飾ではなく、この会社の母語として扱える。
+
+   ここで用意するのは6つ。ページ側はこれを組み合わせるだけにする。
+     1. 吹き出し（.bubble）
+     2. 集中線（.focus）
+     3. スクリーントーン（.tone / .tone--accent）
+     4. コマ枠（.panel-comic）
+     5. 効果線（.speedlines）
+
+   色は3つのまま。イエローは点と淡い下地（--accent-soft）までで、
+   面で塗らないし文字色にもしない（指示書・受け入れ基準）。
+   斜体は使わない。傾けたいところは rotate() を使う（指示書2.2）。
+   =========================================================== */
+
+/* ---------- 1. 吹き出し ----------
+   しっぽの形はロゴの吹き出し（左下に向かって下がる三角）に合わせている。 */
+.bubble {
+  position: relative;
+  background: var(--paper);
+  border: var(--ink-w) solid var(--ink);
+  border-radius: var(--bubble-r);
+}
+
+/* しっぽ。紙色の四角を回して、右と下だけに線を引く。
+   四角の紙色が吹き出しの下線を隠すので、輪郭が繋がって見える。 */
+.bubble::after {
+  content: "";
+  position: absolute;
+  left: var(--bubble-tail-x);
+  bottom: calc(var(--bubble-tail-size) / -2);
+  width: var(--bubble-tail-size);
+  height: var(--bubble-tail-size);
+  background: var(--paper);
+  border-right: var(--ink-w) solid var(--ink);
+  border-bottom: var(--ink-w) solid var(--ink);
+  border-bottom-right-radius: 4px;
+  transform: rotate(52deg) skewX(-12deg);
+}
+
+/* しっぽを右下に出したいとき */
+.bubble--tail-right::after {
+  left: auto;
+  right: var(--bubble-tail-x);
+  transform: rotate(38deg) skewX(12deg);
+}
+
+/* しっぽ無し（コマとして使うとき） */
+.bubble--flat::after {
+  display: none;
+}
+
+/* ---------- 2. 集中線 ----------
+   div を何十枚も並べず、repeating-conic-gradient 1枚で描く。
+   中心は mask で抜いて、文字に線が重ならないようにする。 */
+.focus {
+  position: absolute;
+  inset: -20%;
+  pointer-events: none;
+  background: repeating-conic-gradient(
+    from 0deg at 50% 50%,
+    var(--ink) 0deg 0.42deg,
+    transparent 0.42deg 4.6deg
+  );
+  -webkit-mask-image: radial-gradient(
+    circle at 50% 50%,
+    transparent 24%,
+    #000 58%,
+    transparent 86%
+  );
+  mask-image: radial-gradient(
+    circle at 50% 50%,
+    transparent 24%,
+    #000 58%,
+    transparent 86%
+  );
+  opacity: 0.13;
+}
+
+/* 少しだけ回して、止まっていない状態を作る */
+.focus--spin {
+  animation: focus-spin 44s linear infinite;
+}
+
+@keyframes focus-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ---------- 3. スクリーントーン ----------
+   網点。帯の下地に敷いて、白の面をベタ塗りに見せない。 */
+.tone {
+  background-image: radial-gradient(
+    var(--tone-dot) var(--tone-r),
+    transparent calc(var(--tone-r) + 0.4px)
+  );
+  background-size: var(--tone-gap) var(--tone-gap);
+}
+
+.tone--accent {
+  background-image: radial-gradient(
+    var(--tone-dot-accent) var(--tone-r),
+    transparent calc(var(--tone-r) + 0.4px)
+  );
+  background-size: var(--tone-gap) var(--tone-gap);
+}
+
+/* ---------- 4. コマ枠 ----------
+   太い輪郭＋硬いオフセット影。ぼかさないのが漫画のコマ。 */
+.panel-comic {
+  background: var(--paper);
+  border: var(--ink-w) solid var(--ink);
+  border-radius: var(--panel-r);
+  box-shadow: var(--panel-off) var(--panel-off) 0 var(--ink);
+}
+
+/* ---------- 5. 効果線 ----------
+   横に流れる線。帯の上下に敷いて動きの向きを出す。 */
+.speedlines {
+  background-image: repeating-linear-gradient(
+    to bottom,
+    var(--ink) 0 1px,
+    transparent 1px 6px
+  );
+  opacity: 0.16;
+}
+
+/* ---------- 打ち消し ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .focus--spin {
+    animation: none;
+  }
+}

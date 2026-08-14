@@ -69,25 +69,30 @@ img {
 }
 
 /* --- 小見出し。頭の丸だけがイエロー（面で塗らない） --- */
+/* 漫画のタグ。細い輪郭で囲って、頭の丸はそのまま残す。
+   面で塗らないので、地は紙のまま */
 .eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   font-size: 12px;
   letter-spacing: 0.18em;
   font-weight: 700;
-  color: var(--ink-3);
+  color: var(--ink-2);
   margin: 0 0 20px;
-  position: relative;
-  padding-left: 18px;
+  padding: 5px 14px 5px 11px;
+  border: 1.5px solid var(--ink);
+  border-radius: 999px;
+  background: var(--paper);
 }
 
 .eyebrow::before {
   content: "";
-  position: absolute;
-  left: 0;
-  top: 0.62em;
   width: 9px;
   height: 9px;
   border-radius: 50%;
   background: var(--accent);
+  flex: 0 0 auto;
 }
 
 .lede {
@@ -96,6 +101,8 @@ img {
 }
 
 /* --- ボタン --- */
+/* 漫画のボタン。硬いオフセット影を付け、押したら影の分だけ沈む。
+   ぼかさないのがコマの影 */
 .btn {
   display: inline-flex;
   align-items: center;
@@ -104,25 +111,32 @@ img {
   border-radius: 999px;
   background: var(--ink);
   color: #fff;
+  border: var(--ink-w) solid var(--ink);
+  box-shadow: 3px 3px 0 var(--ink);
   text-decoration: none;
   font-size: 14px;
   font-weight: 700;
   white-space: nowrap;
-  transition: background 0.2s ease;
+  transition: translate 0.12s ease, box-shadow 0.12s ease,
+    background 0.2s ease;
 }
 
 .btn:hover {
   background: var(--ink-2);
 }
 
+.btn:active {
+  translate: 3px 3px;
+  box-shadow: 0 0 0 var(--ink);
+}
+
 .btn--ghost {
-  background: transparent;
+  background: var(--paper);
   color: var(--ink);
-  border: 1px solid var(--line);
 }
 
 .btn--ghost:hover {
-  background: var(--paper-2);
+  background: var(--accent-soft);
   color: var(--ink);
 }
 
