@@ -43,16 +43,51 @@ http://localhost:3000/admin を開くとログイン画面が出る。
 
 ### レビュー用の公開（GitHub Pages）
 
-main に push すると `.github/workflows/preview-pages.yml` が静的書き出しして Pages へ出す。
+https://nekoshinoneko.github.io/888-hp/
+
+`.github/workflows/preview-pages.yml` が静的書き出しして Pages へ出す。
 `noindex` を付けているので検索結果には出ない。
 
+手元で同じものを作る場合：
+
 ```bash
-STATIC_EXPORT=1 NEXT_PUBLIC_BASE_PATH=/888-hp npm run build   # 手元で同じものを作る
+rm -rf src/app/admin src/app/api src/components/admin   # ← 消す前に必ずコミット済みか確認
+STATIC_EXPORT=1 NEXT_PUBLIC_BASE_PATH=/888-hp npm run build
 ```
 
+**`/admin` と `/api` は Server Actions を使っていて静的書き出しできない。**
+そのままだと `Server Actions are not supported with static export.` でビルドが落ちる。
+ワークフローは書き出しの直前にそれらを取り除いている。公開側は admin に一切依存して
+いないので消しても通る（ソースには手を付けず、CI のワークスペース上でだけ消している）。
+
 本番の構成を変えたわけではない。`STATIC_EXPORT=1` のときだけ静的書き出しに切り替わる。
-実装順序5（問い合わせフォーム）でサーバー実行が必要になったらこの経路は使えなくなるので、
-そのタイミングでワークフローを外して App Hosting に一本化する。
+実装順序5（問い合わせフォーム）で公開側にもサーバー実行が必要になったらこの経路は
+使えなくなるので、そのタイミングでワークフローを外して App Hosting に一本化する。
+
+## デザインの版を行き来する
+
+デザインは版ごとにタグを打ってある。戻したくなったらここから取れる。
+
+| タグ | 見た目 |
+| :-- | :-- |
+| `design/1-prototype` | prototype.html 準拠。演出はオープニング・見出しの光・スクロール表示のみ |
+| `design/2-scroll` | 白地のまま pin+scrub を追加。拍手の波紋、マーキー、縦レール |
+| `design/3-comic` | 漫画。コマが奥から出てくるトンネル → ロゴが着地 |
+
+```bash
+git switch -c design-check design/2-scroll   # 見るだけなら別ブランチに出す
+git switch feat/comic-design                 # 戻る
+```
+
+版ごとの作業ブランチも残してある。
+
+| ブランチ | 内容 |
+| :-- | :-- |
+| `feat/media-admin-foundation` | 自作CMSの土台と `/admin`（デザインは prototype 準拠のまま） |
+| `feat/hero-scroll-motion` | ＋ スクロール演出（白） |
+| `feat/comic-design` | ＋ 漫画のトンネル ← いまのレビュー対象 |
+
+一度作った暗転（黒地）版は取り下げ済みで、履歴に残していない。
 
 ## いまどこまで
 

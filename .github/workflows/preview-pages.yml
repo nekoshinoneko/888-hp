@@ -1,11 +1,19 @@
 # レビュー用の GitHub Pages 公開。
-# 本番（Firebase App Hosting）とは別物で、静的書き出しでしか動かない。
-# 実装順序5（問い合わせフォーム）でサーバー実行が必要になった時点でこのワークフローは外す。
+#
+# 本番（Firebase App Hosting）とは別物。ここは公開側のデザインを見るためだけの経路で、
+# 静的書き出しでしか動かない。
+#
+# /admin と /api は Server Actions を使っていて静的書き出しできないため、
+# 書き出しの直前に取り除く。公開側は admin に一切依存していないので消しても通る
+# （src/app/(site) と src/components/{home,layout,motion} からの import は無い）。
+# リポジトリのソースには手を付けず、CI のワークスペース上でだけ消す。
 name: preview-pages
 
 on:
   push:
-    branches: [main]
+    # デザインのレビュー中は作業ブランチからも出す。
+    # 方針が固まったら main だけに戻す。
+    branches: [main, feat/comic-design]
   workflow_dispatch:
 
 permissions:
@@ -31,6 +39,11 @@ jobs:
 
       - run: npm ci
 
+      # 静的書き出しできない部分を落とす。ここで消しているのは管理画面だけで、
+      # 公開側のページには影響しない。
+      - name: Drop server-only routes
+        run: rm -rf src/app/admin src/app/api src/components/admin
+
       - name: Build (static export)
         env:
           STATIC_EXPORT: "1"
@@ -41,7 +54,7 @@ jobs:
           NEXT_PUBLIC_NOINDEX: "1"
         run: npm run build
 
-      # _next/ で始まるディレクトリを Jekyll に消されないようにする
+      # _next/ で始まるディレクトリを Jekyll に消させない
       - run: touch out/.nojekyll
 
       - uses: actions/upload-pages-artifact@v3
